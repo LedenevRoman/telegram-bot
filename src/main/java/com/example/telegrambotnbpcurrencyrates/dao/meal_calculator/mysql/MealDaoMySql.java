@@ -2,8 +2,6 @@ package com.example.telegrambotnbpcurrencyrates.dao.meal_calculator.mysql;
 
 import com.example.telegrambotnbpcurrencyrates.dao.meal_calculator.MealDao;
 import com.example.telegrambotnbpcurrencyrates.model.meal_calculator.Meal;
-import com.example.telegrambotnbpcurrencyrates.model.meal_calculator.User;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

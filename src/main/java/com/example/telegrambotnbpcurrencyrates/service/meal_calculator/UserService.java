@@ -45,6 +45,7 @@ public class UserService {
         return userDao.findByEmail(email);
     }
 
+    @Transactional
     public boolean isUserRegistered(String email) {
         return getUserByEmail(email).isPresent();
     }

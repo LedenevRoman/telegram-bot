@@ -112,6 +112,7 @@ public class MealService {
         return TelegramBotUtils.createReportMessage(firstName, TODAY_REMAINDER_MESSAGE, calories, proteins, fats, carbohydrates);
     }
 
+    @Transactional
     public boolean isUserHaveUnfinishedMeal(String email) {
         return getMealWithoutTimestampByUserEmail(email).isPresent();
     }

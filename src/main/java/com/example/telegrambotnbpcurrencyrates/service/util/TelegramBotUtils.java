@@ -40,20 +40,17 @@ public final class TelegramBotUtils {
 
     public static String createReportMessage(String firstName, String message, BigDecimal calories,
                                              BigDecimal proteins, BigDecimal fats, BigDecimal carbohydrates) {
-        StringBuilder result = new StringBuilder();
-        result.append("Dear, ")
-                .append(firstName)
-                .append(message)
-                .append(calories)
-                .append(" kilocalories, ")
-                .append(proteins)
-                .append(" proteins, ")
-                .append(fats)
-                .append(" fats, ")
-                .append(carbohydrates)
-                .append(" carbohydrates")
-                .append("\n")
-                .append("\n");
-        return result.toString();
+        return "Dear, " + firstName +
+                message +
+                calories +
+                " kilocalories, " +
+                proteins +
+                " proteins, " +
+                fats +
+                " fats, " +
+                carbohydrates +
+                " carbohydrates" +
+                "\n" +
+                "\n";
     }
 }

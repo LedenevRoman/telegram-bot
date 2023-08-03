@@ -47,7 +47,8 @@ public class MealCalculatorService {
 
     private final Map<Long, String> chatIdEmailMap = new HashMap<>();
 
-    public MealCalculatorService(UserService userService, ProductService productService, MealService mealService, MealDetailService mealDetailService) {
+    public MealCalculatorService(UserService userService, ProductService productService, MealService mealService,
+                                 MealDetailService mealDetailService) {
         this.userService = userService;
         this.productService = productService;
         this.mealService = mealService;

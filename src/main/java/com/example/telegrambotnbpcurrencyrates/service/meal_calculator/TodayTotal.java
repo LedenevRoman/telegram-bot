@@ -14,7 +14,8 @@ public class TodayTotal {
     private final BigDecimal fats;
     private final BigDecimal carbohydrates;
 
-    public TodayTotal(List<Meal> meals, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbohydrates) {
+    public TodayTotal(List<Meal> meals, BigDecimal calories, BigDecimal proteins, BigDecimal fats,
+                      BigDecimal carbohydrates) {
         this.meals = meals;
         this.calories = calories;
         this.proteins = proteins;

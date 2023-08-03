@@ -5,6 +5,7 @@ import com.example.telegrambotnbpcurrencyrates.model.currency.Currency;
 import com.example.telegrambotnbpcurrencyrates.model.currency.Rate;
 import com.example.telegrambotnbpcurrencyrates.service.TelegramBotService;
 import com.example.telegrambotnbpcurrencyrates.service.util.TelegramBotUtils;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -49,18 +50,7 @@ public class CurrencyService {
 
     public String getCurrencyRate(String message) throws IOException {
         Currency currency = new Currency();
-        URL url;
-        if (message.equalsIgnoreCase(USD.name()) || message.equalsIgnoreCase(EUR.name())) {
-            url = new URL("http://api.nbp.pl/api/exchangerates/rates/A/" + message);
-        } else {
-            url = new URL("http://api.nbp.pl/api/exchangerates/rates/B/" + message);
-        }
-        Scanner scanner = new Scanner((InputStream) url.getContent());
-        StringBuilder result = new StringBuilder();
-        while (scanner.hasNext()){
-            result.append(scanner.nextLine());
-        }
-        JSONObject object = new JSONObject(result.toString());
+        JSONObject object = getCurrencyJsonObject(message);
 
         currency.setTable(object.getString("table"));
         currency.setCurrency(object.getString("currency"));
@@ -87,6 +77,22 @@ public class CurrencyService {
                 "\n" +
                 INITIAL_MESSAGE;
 
+    }
+
+    @NotNull
+    private static JSONObject getCurrencyJsonObject(String message) throws IOException {
+        URL url;
+        if (message.equalsIgnoreCase(USD.name()) || message.equalsIgnoreCase(EUR.name())) {
+            url = new URL("http://api.nbp.pl/api/exchangerates/rates/A/" + message);
+        } else {
+            url = new URL("http://api.nbp.pl/api/exchangerates/rates/B/" + message);
+        }
+        Scanner scanner = new Scanner((InputStream) url.getContent());
+        StringBuilder result = new StringBuilder();
+        while (scanner.hasNext()){
+            result.append(scanner.nextLine());
+        }
+        return new JSONObject(result.toString());
     }
 
     public SendMessage getInitSendMessage(Long chatId) {
