@@ -2,12 +2,12 @@ package com.example.telegrambotnbpcurrencyrates.model.currency;
 
 import lombok.Data;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
 public class Currency {
-    private String table;
-    private String currency;
+    private String name;
     private String code;
-    private List<Rate> rates;
+    private LocalDate effectiveDate;
+    private Double rate;
 }

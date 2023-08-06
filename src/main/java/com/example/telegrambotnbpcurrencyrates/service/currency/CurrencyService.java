@@ -2,8 +2,8 @@ package com.example.telegrambotnbpcurrencyrates.service.currency;
 
 import com.example.telegrambotnbpcurrencyrates.enums.CurrencyCode;
 import com.example.telegrambotnbpcurrencyrates.model.currency.Currency;
-import com.example.telegrambotnbpcurrencyrates.model.currency.Rate;
 import com.example.telegrambotnbpcurrencyrates.service.TelegramBotService;
+import com.example.telegrambotnbpcurrencyrates.service.currency.exception.RequestApiException;
 import com.example.telegrambotnbpcurrencyrates.service.util.TelegramBotUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -36,11 +35,7 @@ public class CurrencyService {
     public SendMessage handleMessage(Long chatId, String inputMessage) {
         String outputMessage;
         if (isCurrencyCodesContainsMessage(inputMessage)) {
-            try {
-                outputMessage = getCurrencyRate(inputMessage);
-            } catch (IOException e) {
-                outputMessage = NO_SUCH_CURRENCY_MESSAGE;
-            }
+            outputMessage = getCurrencyRate(inputMessage);
         } else {
             outputMessage = NO_SUCH_CURRENCY_MESSAGE;
         }
@@ -48,35 +43,38 @@ public class CurrencyService {
         return TelegramBotUtils.addButtonsToMessage(sendMessage, getButtons());
     }
 
-    public String getCurrencyRate(String message) throws IOException {
-        Currency currency = new Currency();
-        JSONObject object = getCurrencyJsonObject(message);
-
-        currency.setTable(object.getString("table"));
-        currency.setCurrency(object.getString("currency"));
-        currency.setCode(object.getString("code"));
-
-        JSONArray jsonArray = object.getJSONArray("rates");
-        List<Rate> rates = new ArrayList<>();
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject subObject = jsonArray.getJSONObject(i);
-            Rate rate = new Rate();
-            rate.setNo(subObject.getString("no"));
-            rate.setEffectiveDate(LocalDate.parse(subObject.getString("effectiveDate"), DateTimeFormatter.ISO_LOCAL_DATE));
-            rate.setMid(subObject.getDouble("mid"));
-
-            rates.add(rate);
+    public String getCurrencyRate(String message) {
+        JSONObject currencyJson;
+        try {
+            currencyJson = getCurrencyJsonObject(message);
+        } catch (IOException e) {
+            throw new RequestApiException(e.getMessage());
         }
-        currency.setRates(rates);
-
-
+        Currency currency = convertFromJson(currencyJson);
         return "Official exchange rate of PLN to " + currency.getCode() + "\n" +
-                "on date: " + currency.getRates().get(0).getEffectiveDate() + "\n" +
-                "is: " + currency.getRates().get(0).getMid() + " PLN for 1 " + currency.getCode() + "\n" +
+                "on date: " + currency.getEffectiveDate() + "\n" +
+                "is: " + currency.getRate() + " PLN for 1 " + currency.getCode() + "\n" +
                 "\n" +
                 INITIAL_MESSAGE;
 
+    }
+
+    public SendMessage getInitSendMessage(Long chatId) {
+        SendMessage sendMessage = TelegramBotUtils.createSendMessage(chatId, INITIAL_MESSAGE);
+        return TelegramBotUtils.addButtonsToMessage(sendMessage, getButtons());
+    }
+
+    @NotNull
+    private static Currency convertFromJson(JSONObject jsonObject) {
+        Currency currency = new Currency();
+        currency.setName(jsonObject.getString("currency"));
+        currency.setCode(jsonObject.getString("code"));
+        JSONArray jsonArray = jsonObject.getJSONArray("rates");
+        JSONObject subObject = jsonArray.getJSONObject(0);
+        currency.setEffectiveDate(LocalDate.parse(subObject.getString("effectiveDate"),
+                DateTimeFormatter.ISO_LOCAL_DATE));
+        currency.setRate(subObject.getDouble("mid"));
+        return currency;
     }
 
     @NotNull
@@ -89,15 +87,10 @@ public class CurrencyService {
         }
         Scanner scanner = new Scanner((InputStream) url.getContent());
         StringBuilder result = new StringBuilder();
-        while (scanner.hasNext()){
+        while (scanner.hasNext()) {
             result.append(scanner.nextLine());
         }
         return new JSONObject(result.toString());
-    }
-
-    public SendMessage getInitSendMessage(Long chatId) {
-        SendMessage sendMessage = TelegramBotUtils.createSendMessage(chatId, INITIAL_MESSAGE);
-        return TelegramBotUtils.addButtonsToMessage(sendMessage, getButtons());
     }
 
     private static List<String> getButtons() {

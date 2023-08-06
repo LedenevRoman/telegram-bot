@@ -21,7 +21,6 @@ public class TelegramBotService {
     public static final String EXIT = "Exit";
     private static final String UNKNOWN_INPUT_MESSAGE = "Sorry, I don't know how to handle such command yet :(";
     private static final String START = "/start";
-
     private final CurrencyTopic currencyTopic;
     private final MealCalculatorTopic mealCalculatorTopic;
     private final Map<Long, Topic> chatIdTopicMap = new HashMap<>();
@@ -45,12 +44,10 @@ public class TelegramBotService {
                 chatIdTopicMap.put(chatId, null);
                 return exitTopicMessage(chatId, update.getMessage().getChat().getFirstName());
             }
-
             if (chatIdTopicMap.get(chatId) != null) {
                 Topic topic = chatIdTopicMap.get(chatId);
                 return topic.handleMessage(chatId, update);
             }
-
             if (nameTopicMap.containsKey(messageText)) {
                 Topic topic = nameTopicMap.get(messageText);
                 chatIdTopicMap.put(chatId, topic);
